@@ -76,6 +76,30 @@
       .chronometer #play-pause:active {
         background-color: rgb(26, 26, 129);
       }
+
+      @media only screen and (max-width: 450px) {
+        .container-text-to-push {
+          display: flex;
+          width: 100% !important;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 40px;
+        }
+        .container-text-to-push:nth-child(1) {
+          width: fit-content;
+          padding-left: 5px;
+        }
+        .chronometer {
+          margin-right: 10px;
+          width: fit-content;
+        }
+        .container-text-to-push:nth-child(1) button {
+          height: 30px;
+        }
+        .container-text-to-push:nth-child(1) input {
+          height: 20px;
+        }
+      }
     </style>
   </head>
   <body>
