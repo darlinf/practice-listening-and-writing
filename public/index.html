@@ -137,16 +137,22 @@
         second: "",
       };
 
+      let textDiv = document.querySelector(".container");
+
       document.getElementById("push").addEventListener("click", () => {
         textToStudy = document.getElementById("text-to-push").value;
         dataSave.data = textToStudy;
-        startProgram(textToStudy);
-        saveSession();
+        dataSave.completed = {};
+        textDiv.innerHTML = "";
+        localStorage.removeItem("testObject");
+        if (textToStudy !== "") {
+          startProgram(textToStudy);
+          saveSession();
+        }
       });
 
       function startProgram(textToStudy = "") {
         textToStudy = textToStudy.split(".");
-        let textDiv = document.querySelector(".container");
 
         textToStudy.forEach((x, index) => {
           if (dataSave.completed[index] === undefined) {
@@ -232,6 +238,7 @@
         if (retrievedObject) {
           dataSave = retrievedObject;
           startProgram(retrievedObject.data);
+          console.log(retrievedObject);
         }
       }
 
