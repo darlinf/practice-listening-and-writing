@@ -1,43 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        color: white;
+        background-color: rgb(53, 54, 58);
+      }
+      .container {
+        width: 800px;
+        margin: auto;
+        margin-top: 20px;
+      }
+      .container-item {
+        padding: 5px;
+        cursor: pointer;
+        margin: 5px;
+        background-color: rgb(122, 80, 80);
+        width: 90%;
+      }
+      .container-item:hover {
+        background-color: rgba(137, 43, 226, 0.295);
+      }
+      .speak:hover {
+        background-color: rgba(137, 43, 226, 0.295);
+      }
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+      .speak:active {
+        background-color: rgba(15, 7, 22, 0.295);
+      }
+
+      .speak {
+        background-color: rgba(255, 0, 0, 0.637);
+        width: 10%;
+        height: 30px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .main-container-items {
+        display: flex;
+      }
+      .to-write-text input {
+        background-color: rgba(241, 225, 255, 0.295);
+        color: white;
+        width: 790px;
+        margin-bottom: 30px;
+        height: 25px;
+      }
+      .container-text-to-push {
+        width: 800px;
+        margin: auto;
+        margin-top: 200px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .chronometer {
+        display: flex;
+        align-items: center;
+      }
+      .chronometer span {
+        margin-right: 5px;
+      }
+      .chronometer #play-pause {
+        width: 30px;
+        height: 30px;
+        background-color: royalblue;
+        cursor: pointer;
+      }
+      .chronometer #play-pause:hover {
+        background-color: blue;
+      }
+      .chronometer #play-pause:active {
+        background-color: rgb(26, 26, 129);
+      }
+    </style>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <div class="container-text-to-push">
+      <div>
+        <input type="text" id="text-to-push" />
+        <button id="push">push</button>
+      </div>
+      <div class="chronometer">
+        <div>
+          <span id="minute">00</span>
+          <span>:</span>
+          <span id="second">00</span>
+        </div>
+        <div id="play-pause"></div>
+      </div>
+    </div>
+    <div class="container"></div>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <script>
+      let dataSave = {
+        data: "",
+        dataInput: {},
+        completed: {},
+        minute: "",
+        second: "",
+      };
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+      document.getElementById("push").addEventListener("click", () => {
+        textToStudy = document.getElementById("text-to-push").value;
+        dataSave.data = textToStudy;
+        startProgram(textToStudy);
+        saveSession();
+      });
+
+      function startProgram(textToStudy = "") {
+        textToStudy = textToStudy.split(".");
+        let textDiv = document.querySelector(".container");
+
+        textToStudy.forEach((x, index) => {
+          if (dataSave.completed[index] === undefined) {
+            Object.assign(dataSave.completed, { [index]: false });
+          }
+
+          textDiv.innerHTML += `
+        <div>
+          <div class="main-container-items">
+            <div class="container-item" id="container-item-${index}">...</div>
+            <div class="speak" id="speak-${index}"></div>
+          </div>
+          <div class="to-write-text">
+            <input type="text" id="input-text-compare-${index}" value="${
+            dataSave.dataInput[index] === undefined
+              ? ""
+              : dataSave.dataInput[index]
+          }">
+          </div>
+        </div>
+        `;
+        });
+
+        textToStudy.forEach((_, index) => {
+          let flat = false;
+
+          let containerItem = document.getElementById(
+            `container-item-${index}`
+          );
+
+          if (dataSave.completed[index]) {
+            flat = !flat;
+            containerItem.innerHTML = textToStudy[index];
+          }
+
+          containerItem.addEventListener("click", (x) => {
+            if (flat) {
+              x.target.innerHTML = "...";
+              Object.assign(dataSave.completed, { [index]: false });
+              saveSession();
+            } else {
+              x.target.innerHTML = textToStudy[index];
+              Object.assign(dataSave.completed, { [index]: true });
+              saveSession();
+            }
+            flat = !flat;
+          });
+
+          document
+            .getElementById(`speak-${index}`)
+            .addEventListener("click", (x) => {
+              speak(textToStudy[index]);
+            });
+
+          document
+            .getElementById(`input-text-compare-${index}`)
+            .addEventListener("change", (x) => {
+              Object.assign(dataSave.dataInput, { [index]: x.target.value });
+              saveSession();
+            });
+        });
+      }
+
+      let minute = document.getElementById("minute");
+      let second = document.getElementById("second");
+
+      let hr = 0;
+      let min = 0;
+      let sec = 0;
+      let count = 0;
+
+      let timer = false;
+
+      document.getElementById("play-pause").addEventListener("click", () => {
+        timer = !timer;
+        if (timer) stopwatch();
+      });
+
+      function restoreSession() {
+        let textToStudy = document.getElementById("text-to-push").value;
+        let retrievedObject = JSON.parse(localStorage.getItem("testObject"));
+
+        if (retrievedObject) {
+          dataSave = retrievedObject;
+          startProgram(retrievedObject.data);
+        }
+      }
+
+      function saveSession() {
+        let retrievedObject = JSON.parse(localStorage.getItem("testObject"));
+        localStorage.setItem("testObject", JSON.stringify(dataSave));
+      }
+
+      restoreSession();
+
+      /*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
+      function stopwatch() {
+        if (timer) {
+          count++;
+          if (count == 100) {
+            sec++;
+            count = 0;
+          }
+
+          if (sec == 60) {
+            min++;
+            sec = 0;
+          }
+
+          if (min == 60) {
+            hr++;
+            min = 0;
+            sec = 0;
+          }
+
+          let hrString = hr;
+          let minString = min;
+          let secString = sec;
+          let countString = count;
+
+          if (hr < 10) {
+            hrString = "0" + hrString;
+          }
+
+          if (min < 10) {
+            minString = "0" + minString;
+          }
+
+          if (sec < 10) {
+            secString = "0" + secString;
+          }
+
+          if (count < 10) {
+            countString = "0" + countString;
+          }
+
+          minute.textContent = minString;
+          second.textContent = secString;
+          setTimeout(stopwatch, 10);
+        }
+      }
+
+      function speak(
+        textToSpeak = "hello",
+        pitchV = 0.7,
+        rateV = 0.5,
+        voice = "Google US English"
+      ) {
+        const synth = window.speechSynthesis;
+        if (synth.speaking) {
+          console.error("speechSynthesis.speaking");
+          return;
+        }
+
+        if (textToSpeak !== "") {
+          const utterThis = new SpeechSynthesisUtterance(textToSpeak);
+
+          utterThis.onend = function (event) {
+            console.log("SpeechSynthesisUtterance.onend");
+          };
+
+          utterThis.onerror = function (event) {
+            console.error("SpeechSynthesisUtterance.onerror");
+          };
+
+          let voices = synth.getVoices();
+
+          for (let i = 0; i < voices.length; i++) {
+            if (voices[i].name === voice) {
+              utterThis.voice = voices[i];
+              break;
+            }
+          }
+
+          utterThis.pitch = pitchV;
+          utterThis.rate = rateV;
+          synth.speak(utterThis);
+        }
+      }
+    </script>
   </body>
 </html>
