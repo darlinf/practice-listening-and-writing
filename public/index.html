@@ -109,10 +109,36 @@
           width: 90%;
         }
       }
+      .word-result-bad {
+        color: rgb(223, 0, 0);
+      }
+      .word-result-good {
+        color: rgb(0, 179, 0);
+      }
+
+      .word-result {
+        width: 83%;
+        background-color: rgb(42, 57, 65);
+        margin: 5px;
+        margin-bottom: 20px;
+        border: 1px solid green;
+        padding: 5px;
+      }
+
+      #writing-count {
+        border: solid rgb(175, 5, 5) 1px;
+        padding: 5px;
+        width: 25px;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <div class="container-text-to-push">
+      <div id="writing-count">
+        <div><span class="current-count">0</span>-<span>5</span></div>
+        <div><span class="total-count">00</span></div>
+      </div>
       <div>
         <input type="text" id="text-to-push" />
         <button id="push">push</button>
@@ -135,15 +161,27 @@
         completed: {},
         minute: "",
         second: "",
+        writingCount: { date: "", count: 0 },
       };
 
       let textDiv = document.querySelector(".container");
+
+      //Cronometer variables
+      let minute = document.getElementById("minute");
+      let second = document.getElementById("second");
+      let hr = 0;
+      let min = 0;
+      let sec = 0;
+      let count = 0;
+      let timer = false;
 
       document.getElementById("push").addEventListener("click", () => {
         textToStudy = document.getElementById("text-to-push").value;
         dataSave.data = textToStudy;
         dataSave.completed = {};
+        dataSave.dataInput = {};
         textDiv.innerHTML = "";
+
         localStorage.removeItem("testObject");
         if (textToStudy !== "") {
           startProgram(textToStudy);
@@ -152,7 +190,12 @@
       });
 
       function startProgram(textToStudy = "") {
+        console.log(dataSave);
+        document.querySelector(".current-count").innerHTML =
+          dataSave.writingCount.count;
         textToStudy = textToStudy.split(".");
+
+        document.querySelector(".total-count").innerHTML = textToStudy.length;
 
         textToStudy.forEach((x, index) => {
           if (dataSave.completed[index] === undefined) {
@@ -165,7 +208,7 @@
             <div class="container-item" id="container-item-${index}">...</div>
             <div class="speak" id="speak-${index}"></div>
           </div>
-          <div class="to-write-text">
+          <div class="to-write-text" id="to-write-text-${index}">
             <input type="text" id="input-text-compare-${index}" value="${
             dataSave.dataInput[index] === undefined
               ? ""
@@ -177,28 +220,48 @@
         });
 
         textToStudy.forEach((_, index) => {
-          let flat = false;
-
+          let inputTextCompare = document.getElementById(
+            `input-text-compare-${index}`
+          );
           let containerItem = document.getElementById(
             `container-item-${index}`
           );
+          let textResult = containerItem.outerText.split(" ");
+          let textInput = inputTextCompare.value.split(" ");
+          let flat = false;
 
           if (dataSave.completed[index]) {
             flat = !flat;
             containerItem.innerHTML = textToStudy[index];
+            let resultWriting = showResultWriting(
+              textInput,
+              textToStudy[index].split(" ")
+            );
+            document.querySelector(
+              `#to-write-text-${index}`
+            ).innerHTML = `<div class="word-result"><b>${resultWriting.join(
+              " "
+            )}</b></div>`;
           }
 
           containerItem.addEventListener("click", (x) => {
-            if (flat) {
-              x.target.innerHTML = "...";
-              Object.assign(dataSave.completed, { [index]: false });
-              saveSession();
-            } else {
+            if (inputTextCompare.value !== "") {
+              showWritingCount(textToStudy.length);
+              textInput = inputTextCompare.value.split(" ");
               x.target.innerHTML = textToStudy[index];
+
               Object.assign(dataSave.completed, { [index]: true });
               saveSession();
+              let resultWriting = showResultWriting(
+                textInput,
+                textToStudy[index].split(" ")
+              );
+              document.querySelector(
+                `#to-write-text-${index}`
+              ).innerHTML = `<div class="word-result"><b>${resultWriting.join(
+                " "
+              )}</b></div>`;
             }
-            flat = !flat;
           });
 
           document
@@ -207,24 +270,12 @@
               speak(textToStudy[index]);
             });
 
-          document
-            .getElementById(`input-text-compare-${index}`)
-            .addEventListener("change", (x) => {
-              Object.assign(dataSave.dataInput, { [index]: x.target.value });
-              saveSession();
-            });
+          inputTextCompare.addEventListener("change", (x) => {
+            Object.assign(dataSave.dataInput, { [index]: x.target.value });
+            saveSession();
+          });
         });
       }
-
-      let minute = document.getElementById("minute");
-      let second = document.getElementById("second");
-
-      let hr = 0;
-      let min = 0;
-      let sec = 0;
-      let count = 0;
-
-      let timer = false;
 
       document.getElementById("play-pause").addEventListener("click", () => {
         timer = !timer;
@@ -235,10 +286,11 @@
         let textToStudy = document.getElementById("text-to-push").value;
         let retrievedObject = JSON.parse(localStorage.getItem("testObject"));
 
+        console.log(retrievedObject);
+
         if (retrievedObject) {
           dataSave = retrievedObject;
           startProgram(retrievedObject.data);
-          console.log(retrievedObject);
         }
       }
 
@@ -331,6 +383,48 @@
           utterThis.rate = rateV;
           synth.speak(utterThis);
         }
+      }
+
+      function showResultWriting(textInput, textResult) {
+        let resultWriting = [];
+        let flat = true;
+        let saveI = 0;
+
+        for (let j = 0; j < textInput.length; j++) {
+          for (let i = saveI; i < textResult.length; i++) {
+            if (textResult[i].toUpperCase() === textInput[j].toUpperCase()) {
+              resultWriting.push(
+                `<span class="word-result-good">${textInput[j]}</span>`
+              );
+              flat = false;
+              break;
+            }
+          }
+          if (flat) {
+            resultWriting.push(
+              `<span class="word-result-bad">${textInput[j]}</span>`
+            );
+          }
+          flat = true;
+        }
+        return resultWriting;
+      }
+
+      function showWritingCount() {
+        let currentDate = `${new Date().getMonth()}/${new Date().getDate()}/${new Date().getFullYear()}`;
+        console.log(dataSave.writingCount.date);
+        if (
+          dataSave.writingCount.date === "" ||
+          dataSave.writingCount.date !== currentDate
+        ) {
+          dataSave.writingCount.count = 1;
+          dataSave.writingCount.date = currentDate;
+        } else if (dataSave.writingCount.date === currentDate) {
+          dataSave.writingCount.count += 1;
+        }
+
+        let writingCount = document.querySelector(".current-count");
+        writingCount.innerHTML = dataSave.writingCount.count;
       }
     </script>
   </body>
