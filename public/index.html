@@ -273,6 +273,7 @@
             .getElementById(`speak-${index}`)
             .addEventListener("click", (x) => {
               speak(textToStudy[index]);
+              inputTextCompare.focus();
             });
 
           inputTextCompare.addEventListener("change", (x) => {
