@@ -136,6 +136,10 @@
         width: 25px;
         text-align: center;
       }
+      .word-text-result {
+        color: rgb(231, 231, 0);
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
@@ -240,7 +244,8 @@
             containerItem.innerHTML = textToStudy[index];
             let resultWriting = showResultWriting(
               textInput,
-              textToStudy[index].split(" ")
+              textToStudy[index].split(" "),
+              index
             );
             document.querySelector(
               `#to-write-text-${index}`
@@ -259,7 +264,8 @@
               saveSession();
               let resultWriting = showResultWriting(
                 textInput,
-                textToStudy[index].split(" ")
+                textToStudy[index].split(" "),
+                index
               );
               document.querySelector(
                 `#to-write-text-${index}`
@@ -391,14 +397,16 @@
         }
       }
 
-      function showResultWriting(textInput, textResult) {
+      function showResultWriting(textInput, textResult, index) {
         let resultWriting = [];
         let flat = true;
         let saveI = 0;
 
         for (let j = 0; j < textInput.length; j++) {
-          for (let i = saveI; i < textResult.length; i++) {
-            if (textResult[i].toUpperCase() === textInput[j].toUpperCase()) {
+          for (let i = 0; i < textResult.length; i++) {
+            if (
+              wordNormaliced(textResult[i]) === wordNormaliced(textInput[j])
+            ) {
               resultWriting.push(
                 `<span class="word-result-good">${textInput[j]}</span>`
               );
@@ -413,7 +421,38 @@
           }
           flat = true;
         }
+
+        //caught word
+        let flat2 = false;
+        let resultWriting2 = [];
+
+        for (let i = 0; i < textResult.length; i++) {
+          for (let j = 0; j < resultWriting.length; j++) {
+            if (
+              wordNormaliced(textResult[i]) === wordNormaliced(textInput[j]) &&
+              resultWriting[0].includes("good") === true
+            ) {
+              flat2 = true;
+              break;
+            }
+          }
+          if (flat2 === false) {
+            resultWriting2.push(
+              `<span class="word-text-result">${textResult[i]}</span>`
+            );
+          } else {
+            resultWriting2.push(textResult[i]);
+          }
+          flat2 = false;
+        }
+        document.querySelector(`#container-item-${index}`).innerHTML =
+          resultWriting2.join(" ");
+
         return resultWriting;
+      }
+
+      function wordNormaliced(wordText) {
+        return wordText.replaceAll(",", "").replaceAll(".", "").toUpperCase();
       }
 
       function showWritingCount() {
