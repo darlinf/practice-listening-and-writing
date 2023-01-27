@@ -6,9 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
+      :root {
+        --body-cl: white;
+        --body-bg: rgb(53, 54, 58);
+        --container-bg: rgb(122, 80, 80);
+        --container-hover-bg: rgba(137, 43, 226, 0.295);
+        --speak-hover-bg: rgba(137, 43, 226, 0.295);
+        --speak-active-bg: rgba(15, 7, 22, 0.295);
+        --speak-bg: rgba(255, 0, 0, 0.637);
+        --to-write-text-input-bg: rgba(241, 225, 255, 0.295);
+        --chronometer-play-pause-bg: royalblue;
+        --chronometer-play-pause-hover-bg: blue;
+        --chronometer-play-pause-active-bg: rgb(26, 26, 129);
+        --container-text-to-push-bg: rgb(62, 30, 95);
+        --word-result-bad-cl: rgb(223, 0, 0);
+        --word-result-good-cl: rgb(0, 179, 0);
+        --word-result-bd: green;
+        --word-result-bg: rgb(42, 57, 65);
+        --writing-count-bd: rgb(175, 5, 5);
+        --word-text-result-cl: rgb(231, 231, 0);
+        --to-write-text-input-cl: white;
+      }
+
       body {
-        color: white;
-        background-color: rgb(53, 54, 58);
+        color: var(--body-cl);
+        background-color: var(--body-bg);
       }
       .container {
         width: 800px;
@@ -19,22 +41,22 @@
         padding: 5px;
         cursor: pointer;
         margin: 5px;
-        background-color: rgb(122, 80, 80);
+        background-color: var(--container-bg);
         width: 90%;
       }
       .container-item:hover {
-        background-color: rgba(137, 43, 226, 0.295);
+        background-color: var(--container-hover-bg);
       }
       .speak:hover {
-        background-color: rgba(137, 43, 226, 0.295);
+        background-color: var(--speak-hover-bg);
       }
 
       .speak:active {
-        background-color: rgba(15, 7, 22, 0.295);
+        background-color: var(--speak-active-bg);
       }
 
       .speak {
-        background-color: rgba(255, 0, 0, 0.637);
+        background-color: var(--speak-bg);
         width: 10%;
         height: 30px;
         cursor: pointer;
@@ -44,8 +66,8 @@
         display: flex;
       }
       .to-write-text input {
-        background-color: rgba(241, 225, 255, 0.295);
-        color: white;
+        background-color: var(--to-write-text-input-bg);
+        color: var(--to-write-text-input-cl);
         width: 790px;
         margin-bottom: 30px;
         height: 25px;
@@ -67,14 +89,14 @@
       .chronometer #play-pause {
         width: 30px;
         height: 30px;
-        background-color: royalblue;
+        background-color: var(--chronometer-play-pause-bg);
         cursor: pointer;
       }
       .chronometer #play-pause:hover {
-        background-color: blue;
+        background-color: var(--chronometer-play-pause-hover-bg);
       }
       .chronometer #play-pause:active {
-        background-color: rgb(26, 26, 129);
+        background-color: var(--chronometer-play-pause-active-bg);
       }
 
       @media only screen and (max-width: 450px) {
@@ -85,6 +107,10 @@
           align-items: center;
           margin-top: 40px;
           margin-bottom: 36px;
+          background-color: var(--container-text-to-push-bg);
+          position: sticky;
+          height: 70px;
+          top: 0px;
         }
         .container-text-to-push:nth-child(1) {
           width: fit-content;
@@ -115,29 +141,29 @@
         }
       }
       .word-result-bad {
-        color: rgb(223, 0, 0);
+        color: var(--word-result-bad-cl);
       }
       .word-result-good {
-        color: rgb(0, 179, 0);
+        color: var(--word-result-good-cl);
       }
 
       .word-result {
         width: 83%;
-        background-color: rgb(42, 57, 65);
+        background-color: var(--word-result-bg);
         margin: 5px;
         margin-bottom: 20px;
-        border: 1px solid green;
+        border: 1px solid var(--word-result-bd);
         padding: 5px;
       }
 
       #writing-count {
-        border: solid rgb(175, 5, 5) 1px;
+        border: solid var(--writing-count-bd) 1px;
         padding: 5px;
         width: 25px;
         text-align: center;
       }
       .word-text-result {
-        color: rgb(231, 231, 0);
+        color: var(--word-text-result-cl);
         font-weight: bold;
       }
     </style>
