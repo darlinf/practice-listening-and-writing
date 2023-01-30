@@ -9,7 +9,11 @@
       :root {
         --body-cl: white;
         --body-bg: rgb(53, 54, 58);
-        --container-bg: rgb(122, 80, 80);
+
+        --container-bg: rgb(97, 82, 63);
+        --container-text-to-push-bg: rgb(31, 43, 80);
+        --writing-count-bd: rgb(153, 130, 130);
+
         --container-hover-bg: rgba(137, 43, 226, 0.295);
         --speak-hover-bg: rgba(137, 43, 226, 0.295);
         --speak-active-bg: rgba(15, 7, 22, 0.295);
@@ -18,17 +22,20 @@
         --chronometer-play-pause-bg: royalblue;
         --chronometer-play-pause-hover-bg: blue;
         --chronometer-play-pause-active-bg: rgb(26, 26, 129);
-        --container-text-to-push-bg: rgb(62, 30, 95);
-        --word-result-bad-cl: rgb(223, 0, 0);
-        --word-result-good-cl: rgb(0, 179, 0);
+
+        --word-result-bad-cl: #ec5656;
+        --word-result-good-cl: rgb(113, 226, 113);
         --word-result-bd: green;
-        --word-result-bg: rgb(42, 57, 65);
-        --writing-count-bd: rgb(175, 5, 5);
+        --word-result-bg: rgb(8, 58, 85);
+
         --word-text-result-cl: rgb(231, 231, 0);
         --to-write-text-input-cl: white;
       }
 
       body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
         color: var(--body-cl);
         background-color: var(--body-bg);
       }
@@ -38,11 +45,11 @@
         margin-top: 20px;
       }
       .container-item {
-        padding: 5px;
+        padding: 10px;
         cursor: pointer;
-        margin: 5px;
         background-color: var(--container-bg);
         width: 90%;
+        border-radius: 15px 0 0 0;
       }
       .container-item:hover {
         background-color: var(--container-hover-bg);
@@ -58,9 +65,12 @@
       .speak {
         background-color: var(--speak-bg);
         width: 10%;
-        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        fill: white;
         cursor: pointer;
-        margin: 5px;
+        border-radius: 0 5px 5px 0;
       }
       .main-container-items {
         display: flex;
@@ -68,9 +78,11 @@
       .to-write-text input {
         background-color: var(--to-write-text-input-bg);
         color: var(--to-write-text-input-cl);
-        width: 790px;
+        /* /*width: 790px;*/
+        width: 97.5%;
         margin-bottom: 30px;
         height: 25px;
+        margin-top: 5px;
       }
       .container-text-to-push {
         width: 800px;
@@ -82,6 +94,10 @@
       .chronometer {
         display: flex;
         align-items: center;
+        margin-left: 5px;
+        border: 1px solid var(--chronometer-play-pause-bg);
+        border-radius: 5px;
+        padding-left: 5px;
       }
       .chronometer span {
         margin-right: 5px;
@@ -91,6 +107,14 @@
         height: 30px;
         background-color: var(--chronometer-play-pause-bg);
         cursor: pointer;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        fill: white;
+      }
+      #play-pause svg {
+        width: 15px;
       }
       .chronometer #play-pause:hover {
         background-color: var(--chronometer-play-pause-hover-bg);
@@ -100,6 +124,15 @@
       }
 
       @media only screen and (max-width: 450px) {
+        .container-text-to-push-main {
+          background-color: var(--container-text-to-push-bg);
+
+          position: sticky;
+          top: 0px;
+          display: flex;
+          justify-content: center;
+          border-radius: 0 0 25px 25px;
+        }
         .container-text-to-push {
           display: flex;
           /*width: 90% !important;*/
@@ -107,10 +140,9 @@
           align-items: center;
           margin-top: 40px;
           margin-bottom: 36px;
-          background-color: var(--container-text-to-push-bg);
-          position: sticky;
           height: 70px;
-          top: 0px;
+
+          margin: 0 !important;
         }
         .container-text-to-push:nth-child(1) {
           width: fit-content;
@@ -128,10 +160,14 @@
         }
 
         .to-write-text input {
-          width: 90%;
+          background-color: var(--word-result-bg);
+          border: 1px solid var(--word-result-bd);
+          border-radius: 5px;
         }
         #text-to-push {
           width: 30vw;
+          border-radius: 3px;
+          border: 0;
         }
         .text-to-push-input {
           margin: 5px;
@@ -148,16 +184,16 @@
       }
 
       .word-result {
-        width: 83%;
-        background-color: var(--word-result-bg);
-        margin: 5px;
+        background-color: var(--container-bg);
+        margin-top: 5px;
         margin-bottom: 20px;
-        border: 1px solid var(--word-result-bd);
         padding: 5px;
+        border-radius: 0 5px 5px 15px;
       }
 
       #writing-count {
-        border: solid var(--writing-count-bd) 1px;
+        border-radius: 10px;
+        border: solid var(--chronometer-play-pause-bg) 1px;
         padding: 5px;
         width: 25px;
         text-align: center;
@@ -166,30 +202,48 @@
         color: var(--word-text-result-cl);
         font-weight: bold;
       }
+      /*.input-text-compare{
+        border-radius: 5px;
+        width: fit-content;
+      }*/
+      #push {
+        border: 0;
+        border-radius: 5px;
+      }
     </style>
   </head>
   <body>
-    <div class="container-text-to-push">
-      <div id="writing-count">
-        <div><span class="current-count">0</span>-<span>5</span></div>
-        <div><span class="total-count">00</span></div>
-      </div>
-      <div class="text-to-push-input">
-        <input type="text" id="text-to-push" />
-        <button id="push">push</button>
-      </div>
-      <div class="chronometer">
-        <div>
-          <span id="minute">00</span>
-          <span>:</span>
-          <span id="second">00</span>
+    <div class="container-text-to-push-main">
+      <div class="container-text-to-push">
+        <div id="writing-count">
+          <div><span class="current-count">0</span>-<span>5</span></div>
+          <div><span class="total-count">00</span></div>
         </div>
-        <div id="play-pause"></div>
+        <div class="text-to-push-input">
+          <input type="text" id="text-to-push" />
+          <button id="push">push</button>
+        </div>
+        <div class="chronometer">
+          <div>
+            <span id="minute">00</span>
+            <span>:</span>
+            <span id="second">00</span>
+          </div>
+          <div id="play-pause">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+              <!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+              <path
+                d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"
+              />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
     <div class="container"></div>
 
     <script>
+      let iconSpeak = `<svg enable-background="new 0 0 24 24" height="20" viewBox="0 0 24 24" width="20" focusable="false" class=" NMm5M"><g><rect fill="none" height="24" width="24"></rect></g><g><g><path d="M3,9v6h4l5,5V4L7,9H3z M16.5,12c0-1.77-1.02-3.29-2.5-4.03v8.05C15.48,15.29,16.5,13.77,16.5,12z M14,3.23v2.06 c2.89,0.86,5,3.54,5,6.71s-2.11,5.85-5,6.71v2.06c4.01-0.91,7-4.49,7-8.77S18.01,4.14,14,3.23z"></path></g></g></svg>`;
       let dataSave = {
         data: "",
         dataInput: {},
@@ -241,10 +295,10 @@
         <div>
           <div class="main-container-items">
             <div class="container-item" id="container-item-${index}">...</div>
-            <div class="speak" id="speak-${index}"></div>
+            <div class="speak"  id="speak-${index}"><span>${iconSpeak}</span></div>
           </div>
           <div class="to-write-text" id="to-write-text-${index}">
-            <input type="text" id="input-text-compare-${index}" value="${
+            <input class="input-text-compare" type="text" id="input-text-compare-${index}" value="${
             dataSave.dataInput[index] === undefined
               ? ""
               : dataSave.dataInput[index]
@@ -315,10 +369,24 @@
         });
       }
 
-      document.getElementById("play-pause").addEventListener("click", () => {
+      let playPause = document.getElementById("play-pause");
+
+      playPause.addEventListener("click", () => {
         timer = !timer;
         if (timer) stopwatch();
+        playPause.innerHTML = playPauseIcon();
       });
+
+      const playPauseIcon = (function () {
+        let flat = true;
+        return function () {
+          flat = !flat;
+          if (flat) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>`;
+          }
+          return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/></svg>`;
+        };
+      })();
 
       function restoreSession() {
         let textToStudy = document.getElementById("text-to-push").value;
