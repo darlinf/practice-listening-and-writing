@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioChunks = [];
     let allAudioBlobs = []; // Stores complete session
     let recordingTimeout = null;
+    let recordingInterval = null;
     let synthStartTime = 0;
 
     // Audio Feedback (Beeps)
@@ -149,17 +150,22 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('savedText', textInput.value);
     });
 
+    let ttsUnlocked = false;
+
     // --- Microphone & Audio Unlocking ---
     async function unlockEngineAndGetMic() {
         // Unlock Web Audio API synchronously during click event
         if (!audioCtx) audioCtx = new AudioContextAPI();
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        // Unlock SpeechSynthesis synchronously
-        synth.resume();
-        const silent = new SpeechSynthesisUtterance('');
-        silent.volume = 0;
-        synth.speak(silent);
+        // Unlock SpeechSynthesis synchronously ONLY ONCE
+        if (!ttsUnlocked) {
+            synth.resume();
+            const silent = new SpeechSynthesisUtterance('');
+            silent.volume = 0;
+            synth.speak(silent);
+            ttsUnlocked = true;
+        }
 
         if (!mediaStream) {
             try {
@@ -270,8 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Cancel any current speech before starting new
         synth.cancel();
 
-        // The text to speak (append period so intonation is correct)
-        const utterance = new SpeechSynthesisUtterance(sentences[index] + '.');
+        // Small delay to prevent Chrome's SpeechSynthesis from locking up
+        setTimeout(() => {
+            // The text to speak (append period so intonation is correct)
+            const utterance = new SpeechSynthesisUtterance(sentences[index] + '.');
         
         const selectedVoice = voices[voiceSelect.value];
         if (selectedVoice) {
@@ -305,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         synth.speak(utterance);
+        }, 50);
     }
 
     function startRecordingForSentence(index, readDurationMs) {
@@ -323,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         mediaRecorder.onstop = () => {
+            if (recordingInterval) clearInterval(recordingInterval);
             if (!isSpeaking) return; // Discard if user stopped generally
             playBeep('stop');
             const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
@@ -360,8 +370,20 @@ document.addEventListener('DOMContentLoaded', () => {
         
         waveAnimation.classList.add('hidden');
         recordingPulse.classList.remove('hidden');
-        statusText.textContent = `🎤 Repite... Tienes ${Math.ceil((readDurationMs + extraWaitTimeMs)/1000)} seg`;
         
+        let remainingTimeSec = Math.ceil((readDurationMs + extraWaitTimeMs)/1000);
+        statusText.textContent = `🎤 Repite... Tienes ${remainingTimeSec} seg`;
+        
+        if (recordingInterval) clearInterval(recordingInterval);
+        recordingInterval = setInterval(() => {
+            remainingTimeSec--;
+            if (remainingTimeSec > 0) {
+                statusText.textContent = `🎤 Repite... Tienes ${remainingTimeSec} seg`;
+            } else {
+                clearInterval(recordingInterval);
+            }
+        }, 1000);
+
         const waitTime = readDurationMs + extraWaitTimeMs;
         
         recordingTimeout = setTimeout(() => {
@@ -384,6 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function finishEntireSession() {
         stopAudio();
+        currentSentenceIndex = 0;
         statusText.textContent = 'Sesión finalizada';
         
         if (allAudioBlobs.length > 0) {
@@ -414,6 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetPlayer() {
         synth.cancel();
         clearTimeout(recordingTimeout);
+        if (recordingInterval) clearInterval(recordingInterval);
         if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
         currentSentenceIndex = 0;
         isSpeaking = false;
@@ -428,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopAudio() {
         synth.cancel();
         clearTimeout(recordingTimeout);
+        if (recordingInterval) clearInterval(recordingInterval);
         isSpeaking = false;
         if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
         statusText.textContent = 'Detenido';
