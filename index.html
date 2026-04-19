@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Reader</title>
+    <!-- Use Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Include Phosphor Icons for elegant icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="logo">
+                <i class="ph ph-waves"></i>
+                <h1>NeuralReader</h1>
+            </div>
+            <p class="subtitle">Transforma tu texto en voz, oración por oración.</p>
+        </header>
+
+        <main class="main-content">
+            <section class="input-section">
+                <textarea id="text-input" placeholder="Pega tu texto aquí... Las oraciones se dividirán por los puntos (.)"></textarea>
+                <div class="action-buttons">
+                    <button id="process-btn" class="btn primary-btn">
+                        <i class="ph ph-list-numbers"></i> Procesar Texto
+                    </button>
+                    <button id="clear-btn" class="btn secondary-btn">
+                        <i class="ph ph-trash"></i> Limpiar
+                    </button>
+                </div>
+            </section>
+
+            <section class="controls-section hidden" id="controls">
+                <div class="glass-panel settings-panel">
+                    <div class="setting-group">
+                        <label for="voice-select"><i class="ph ph-speaker-high"></i> Voz</label>
+                        <select id="voice-select" class="form-control"></select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="rate-input"><i class="ph ph-gauge"></i> Velocidad (<span id="rate-value">1.0x</span>)</label>
+                        <input type="range" id="rate-input" min="0.5" max="2" value="1" step="0.1" class="form-control">
+                    </div>
+                    <div class="setting-group">
+                        <label for="time-input"><i class="ph ph-timer"></i> Tiempo extra (seg)</label>
+                        <input type="number" id="time-input" min="1" max="60" value="10" class="form-control">
+                    </div>
+                </div>
+                <div class="glass-panel audio-controls">
+                    <button id="play-btn" class="control-btn play-btn" title="Reproducir">
+                        <i class="ph-fill ph-play"></i>
+                    </button>
+                    <button id="pause-btn" class="control-btn pause-btn hidden" title="Pausar">
+                        <i class="ph-fill ph-pause"></i>
+                    </button>
+                    <button id="stop-btn" class="control-btn stop-btn" title="Detener">
+                        <i class="ph-fill ph-stop"></i>
+                    </button>
+                    <div class="status-indicator">
+                        <div class="recording-indicator hidden" id="recording-pulse"></div>
+                        <span id="status-text">Listo para reproducir</span>
+                        <div class="wave-animation hidden" id="wave">
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="playback-section hidden" id="playback-container">
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h2><i class="ph ph-microphone-stage"></i> Tu Grabación Final</h2>
+                    <audio id="final-audio" controls style="width: 100%; margin-top: 1rem;"></audio>
+                </div>
+            </section>
+
+            <section class="sentences-section hidden" id="sentences-container">
+                <h2>Lista de Oraciones</h2>
+                <ul id="sentences-list" class="sentences-list">
+                    <!-- Sentences will be injected here -->
+                </ul>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
