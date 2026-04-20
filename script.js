@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Audio Feedback (Beeps)
     const AudioContextAPI = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null; // initialized on interaction
+    const sharedAudio = new Audio(); // Shared audio instance for iOS mobile autoplay rules
 
     function playBeep(type) {
         if (!audioCtx) audioCtx = new AudioContextAPI();
@@ -164,6 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const silent = new SpeechSynthesisUtterance('');
             silent.volume = 0;
             synth.speak(silent);
+            
+            // Unlock HTML audio element play for iOS
+            sharedAudio.src = 'data:audio/mp3;base64,//OExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq/';
+            sharedAudio.play().catch(e => { /* Ignore empty source error */ });
+
             ttsUnlocked = true;
         }
 
@@ -343,20 +349,25 @@ document.addEventListener('DOMContentLoaded', () => {
             statusText.textContent = `Reproduciendo tu grabación...`;
             
             const tempUrl = URL.createObjectURL(blob);
-            const tempAudio = new Audio(tempUrl);
+            sharedAudio.src = tempUrl;
             
-            tempAudio.onended = () => {
+            let nextHandled = false;
+            
+            sharedAudio.onended = () => {
+                if (nextHandled) return; nextHandled = true;
                 URL.revokeObjectURL(tempUrl);
                 handleNextSentence(index + 1);
             };
             
-            tempAudio.onerror = (e) => {
+            sharedAudio.onerror = (e) => {
+                if (nextHandled) return; nextHandled = true;
                 console.error("Audio playback error:", e);
                 URL.revokeObjectURL(tempUrl);
                 handleNextSentence(index + 1);
             };
             
-            tempAudio.play().catch(e => {
+            sharedAudio.play().catch(e => {
+                if (nextHandled) return; nextHandled = true;
                 console.error("Auto-play prevented or error: ", e);
                 URL.revokeObjectURL(tempUrl);
                 handleNextSentence(index + 1);
