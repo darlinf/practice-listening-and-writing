@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const rateInput = document.getElementById('rate-input');
     const rateValue = document.getElementById('rate-value');
     const timeInput = document.getElementById('time-input');
+    const ttsVolumeInput = document.getElementById('tts-volume-input');
+    const ttsVolumeValue = document.getElementById('tts-volume-value');
+    const playbackVolumeInput = document.getElementById('playback-volume-input');
+    const playbackVolumeValue = document.getElementById('playback-volume-value');
 
     // Audio controls
     const playBtn = document.getElementById('play-btn');
@@ -53,18 +57,29 @@ document.addEventListener('DOMContentLoaded', () => {
         gainNode.connect(audioCtx.destination);
         
         const now = audioCtx.currentTime;
-        gainNode.gain.value = 0.2; // 20% volume is safe but very audible for square wave
+        
+        // Softer sine wave instead of harsh square
+        oscillator.type = 'sine';
+        
+        const masterVol = parseFloat(playbackVolumeInput?.value || 1);
+        
+        // Apply a gentle fade-in and fade-out envelope to avoid clicks and soften the sound
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.15 * masterVol, now + 0.05); // Fade in
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.25);     // Fade out
         
         if (type === 'start') {
-            oscillator.type = 'square';
-            oscillator.frequency.value = 800;
+            oscillator.frequency.value = 500;
+            // Add a small slide up
+            oscillator.frequency.exponentialRampToValueAtTime(700, now + 0.1);
         } else if (type === 'stop') {
-            oscillator.type = 'square';
-            oscillator.frequency.value = 400;
+            oscillator.frequency.value = 600;
+            // slide down
+            oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.1);
         }
         
         oscillator.start(now);
-        oscillator.stop(now + 0.15); // 150ms beep
+        oscillator.stop(now + 0.3); // Let the tail finish smoothly
     }
 
     // Initialize rate from localStorage
@@ -78,6 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTime = localStorage.getItem('preferredTime');
     if (savedTime) {
         timeInput.value = savedTime;
+    }
+
+    // Initialize volumes from localStorage
+    const savedTtsVol = localStorage.getItem('preferredTtsVol');
+    if (savedTtsVol) {
+        ttsVolumeInput.value = savedTtsVol;
+        ttsVolumeValue.textContent = Math.round(savedTtsVol * 100) + '%';
+    }
+    const savedPlaybackVol = localStorage.getItem('preferredPlaybackVol');
+    if (savedPlaybackVol) {
+        playbackVolumeInput.value = savedPlaybackVol;
+        playbackVolumeValue.textContent = Math.round(savedPlaybackVol * 100) + '%';
+        sharedAudio.volume = parseFloat(savedPlaybackVol);
+        finalAudio.volume = parseFloat(savedPlaybackVol);
     }
 
     // Initialize text from localStorage
@@ -145,6 +174,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isNaN(val) || val < 1) val = 10;
         timeInput.value = val;
         localStorage.setItem('preferredTime', val);
+    });
+
+    ttsVolumeInput.addEventListener('input', () => {
+        const val = parseFloat(ttsVolumeInput.value);
+        ttsVolumeValue.textContent = Math.round(val * 100) + '%';
+        localStorage.setItem('preferredTtsVol', val);
+    });
+
+    playbackVolumeInput.addEventListener('input', () => {
+        const val = parseFloat(playbackVolumeInput.value);
+        playbackVolumeValue.textContent = Math.round(val * 100) + '%';
+        localStorage.setItem('preferredPlaybackVol', val);
+        sharedAudio.volume = val;
+        if (finalAudio) finalAudio.volume = val;
     });
 
     textInput.addEventListener('input', () => {
@@ -293,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             utterance.lang = selectedVoice.lang; // Crucial for some engines to work!
         }
         utterance.rate = parseFloat(rateInput.value);
+        utterance.volume = parseFloat(ttsVolumeInput.value);
         
         utterance.onstart = () => {
             isSpeaking = true;
